@@ -3,19 +3,19 @@ import pygame
 class Bola:
     def __init__(self, ventana, x, y, radio, velocidad):
         self.ventana = ventana
-        self.x = x
-        self.y = y
+        self.x = ANCHO_VENTANA // 2
+        self.y = ALTO_VENTANA // 2
         self.radio = radio
         self.velocidad = velocidad
 
     def mover(self, teclas):
-        if teclas[pygame.K_w]:
+        if teclas[pygame.K_UP]:
             self.y -= self.velocidad
-        if teclas[pygame.K_s]:
+        if teclas[pygame.K_DOWN]:
             self.y += self.velocidad
-        if teclas[pygame.K_a]:
+        if teclas[pygame.K_LEFT]:
             self.x -= self.velocidad
-        if teclas[pygame.K_d]:
+        if teclas[pygame.K_RIGHT]:
             self.x += self.velocidad
 
         if self.x + self.radio >= ANCHO_VENTANA:
@@ -38,7 +38,7 @@ class Juego:
         pygame.display.set_caption("Mueve la bola")
 
     def dibujar_borde(self):
-        pygame.draw.rect(self.ventana, (0, 0, 0), (0, 0, self.ancho, self.alto), 20)
+        pygame.draw.rect(self.ventana, (0, 0, 0), (0, 0, self.ancho, self.alto), 100)
 
     def ejecutar(self):
         bola = Bola(self.ventana, 20, self.alto - 20, 20, 0.4)
@@ -62,8 +62,8 @@ class Juego:
 
 if __name__ == "__main__":
     pygame.init()
-    ANCHO_VENTANA = 900
-    ALTO_VENTANA = 900
+    ANCHO_VENTANA = 800
+    ALTO_VENTANA = 720
 
     juego = Juego(ANCHO_VENTANA, ALTO_VENTANA)
     juego.ejecutar()
