@@ -35,7 +35,7 @@ def rankings():
                                  text="Volver")
     btn_cerrarranked.place(x=1050, y=500)
 
-    titu_rankds = tk.Label(rank, text="Tabla de clasificacion:", bg="gray", fg="white", font=("Arial", 20))
+    titu_rankds = tk.Label(rank, text="Tabla de clasificacion:", bg="gray", fg="white", font=("Arial", 30))
     titu_rankds.place(x=430, y=50)
 
 
@@ -53,15 +53,15 @@ lbl_fondo.pack()
 
 
 
-btn_juego = tk.Button(prin_menu, text="PLAY", command=vent_juego, font=("Arial", 20), fg="black")
-btn_juego.place(x=530, y=500)
+btn_juego = tk.Button(prin_menu, text="PLAY", command=vent_juego, font=("Arial", 30), fg="black")
+btn_juego.place(x=430, y=300)
 
 
-btn_info = tk.Button(prin_menu, text="INFO", command=ven_info, font=("Arial", 20), fg="black")
-btn_info.place(x=420, y=500)
+btn_info = tk.Button(prin_menu, text="INFO", command=ven_info, font=("Arial", 30), fg="black")
+btn_info.place(x=220, y=300)
 
 
-btn_rankings = tk.Button(prin_menu, text="RANKING", command=rankings, font=("Arial", 20), fg="black")
-btn_rankings.place(x=670, y=500)
+btn_rankings = tk.Button(prin_menu, text="RANKING", command=rankings, font=("Arial", 30), fg="black")
+btn_rankings.place(x=670, y=300)
 
 prin_menu.mainloop()
