@@ -1,6 +1,6 @@
 import pygame
 
-ANCHO_VENTANA = 800
+ANCHO_VENTANA: int = 800
 ALTO_VENTANA = 720
 
 pygame.init()
