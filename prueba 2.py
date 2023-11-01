@@ -1,9 +1,11 @@
 import pygame
 
-ANCHO_VENTANA: int = 800
+#MatGame =
+ANCHO_VENTANA = 800
 ALTO_VENTANA = 720
 
 pygame.init()
+
 
 class Bola:
     def __init__(self, ventana, x, y, radio, velocidad):
@@ -12,6 +14,7 @@ class Bola:
         self.y = ALTO_VENTANA // 2
         self.radio = radio
         self.velocidad = velocidad
+
 
     def mover(self, teclas, objetos_negros):
         x_siguiente = self.x
@@ -25,6 +28,10 @@ class Bola:
             x_siguiente -= self.velocidad
         if teclas[pygame.K_RIGHT]:
             x_siguiente += self.velocidad
+
+        if teclas[pygame.K_SPACE]:
+            print(int(self.x), int(self.y))
+
 
         # Verificar colisión con los bordes de la ventana
         if x_siguiente - self.radio < 0:
@@ -43,6 +50,7 @@ class Bola:
         self.x = x_siguiente
         self.y = y_siguiente
 
+
     def colisiona_con_objeto(self, x, y, objeto):
         return (
             x + self.radio > objeto[0] and
@@ -54,20 +62,20 @@ class Bola:
     def dibujar(self):
         pygame.draw.circle(self.ventana, (255, 255, 0), (int(self.x), int(self.y)), self.radio)
 
+
 class Juego:
-    def __init(self, ancho, alto):
+    def __init__(self, ancho, alto):
         self.ancho = ancho
         self.alto = alto
         self.ventana = pygame.display.set_mode((ancho, alto))
         pygame.display.set_caption("Mueve la bola")
 
-    def dibujar_borde(self):
-        pygame.draw.rect(self.ventana, (0, 0, 0), (0, 0, self.ancho, self.alto), 100)
+
 
     def ejecutar(self):
-        objetos_negros = [(200, 200, 50, 50), (400, 300, 60, 60)]  # Ejemplo de objetos negros
+        objetos_negros = [(0, 0, 800, 50), (0, 600, 800, 50), ]  # Ejemplo de objetos negros
 
-        bola = Bola(self.ventana, 20, self.alto - 20, 20, 0.4)
+        bola = Bola(self.ventana, 20, self.alto - 20, 20, 0.2)
 
         while True:
             for evento in pygame.event.get():
@@ -81,7 +89,6 @@ class Juego:
 
             self.ventana.fill((0, 0, 128))
 
-            self.dibujar_borde()
 
             # Dibujar objetos negros
             for objeto in objetos_negros:
@@ -91,6 +98,9 @@ class Juego:
 
             pygame.display.update()
 
+
+
 if __name__ == "__main__":
-    juego = Juego(ANCHO_VENTANA, ALTO_VENTANA)
+
+    juego = Juego(800, 720)
     juego.ejecutar()
