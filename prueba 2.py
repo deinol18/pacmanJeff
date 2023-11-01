@@ -29,11 +29,9 @@ class Bola:
         if teclas[pygame.K_RIGHT]:
             x_siguiente += self.velocidad
 
-        #if teclas[pygame.K_SPACE]:
-         #   print((int(self.x)//10)/2, (int(self.y)//10)/2)
-
 
         # Verificar colisión con los bordes de la ventana
+
         if x_siguiente - self.radio < 0:
             x_siguiente = self.radio
         if x_siguiente + self.radio > ANCHO_VENTANA:
@@ -97,7 +95,7 @@ class Juego:
 
             if teclas[pygame.K_m] and not self.tecla_m_presionada:
                 self.imprimir_matriz()
-                print(f"Posición de la bola: ({bola.x}, {bola.y})")
+                print(f"Posición de la bola: ({int(bola.x)}, {int(bola.y)})")
                 self.tecla_m_presionada = True
             elif not teclas[pygame.K_m]:
                 self.tecla_m_presionada = False
