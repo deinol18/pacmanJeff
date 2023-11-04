@@ -1,6 +1,6 @@
 import pygame
+import random
 
-#MatGame =
 ANCHO_VENTANA = 800
 ALTO_VENTANA = 720
 
@@ -29,18 +29,6 @@ class Bola:
         if teclas[pygame.K_RIGHT]:
             x_siguiente += self.velocidad
 
-
-        # Verificar colisión con los bordes de la ventana
-
-        if x_siguiente - self.radio < 0:
-            x_siguiente = self.radio
-        if x_siguiente + self.radio > ANCHO_VENTANA:
-            x_siguiente = ANCHO_VENTANA - self.radio
-        if y_siguiente - self.radio < 0:
-            y_siguiente = self.radio
-        if y_siguiente + self.radio > ALTO_VENTANA:
-            y_siguiente = ALTO_VENTANA - self.radio
-
         for objeto in objetos_negros:
             if self.colisiona_con_objeto(x_siguiente, y_siguiente, objeto):
                 return
@@ -54,12 +42,34 @@ class Bola:
             x + self.radio > objeto[0] and
             x - self.radio < objeto[0] + objeto[2] and
             y + self.radio > objeto[1] and
-            y - self.radio < objeto[1] + objeto[3]
-        )
+            y - self.radio < objeto[1] + objeto[3])
 
     def dibujar(self):
         pygame.draw.circle(self.ventana, (255, 255, 0), (int(self.x), int(self.y)), self.radio)
 
+class Fantasma:
+    def __init__(self, x, y, velocidad, ANCHO_VENTANA, ALTO_VENTANA, color):
+        self.x, self.y = x, y
+        self.velocidad = velocidad
+        self.direccion_x, self.direccion_y = random.choice([-1, 1]), random.choice([-1, 1])
+        self.ANCHO_VENTANA, self.ALTO_VENTANA = ANCHO_VENTANA, ALTO_VENTANA
+        self.color = color
+        
+
+    def mover_continuamente(self):
+        self.x += self.direccion_x * self.velocidad
+        self.y += self.direccion_y * self.velocidad
+
+        if self.x < 0 or self.x > self.ANCHO_VENTANA:
+            self.direccion_x = -self.direccion_x
+        if self.y < 0 or self.y > self.ALTO_VENTANA:
+            self.direccion_y = -self.direccion_y
+
+fantasmas = [
+    Fantasma(x=100, y=100, velocidad=0.1, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(255, 20, 147)),  # Rosa
+    Fantasma(x=200, y=200, velocidad=0.1, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(255, 69, 0)),  # Naranja
+    Fantasma(x=300, y=300, velocidad=0.1, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(0, 255, 255)),  # Cian
+    Fantasma(x=400, y=400, velocidad=0.2, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(255, 0, 0))]  # Rojo
 
 class Juego:
     def __init__(self, ancho, alto):
@@ -80,6 +90,7 @@ class Juego:
                 print()
             self.imprimir_una_vez = False  # Restablecer la variable
 
+
     def ejecutar(self):
         objetos_negros = [(0, 0, 800, 50), (0, 670, 800, 50), (0, 0, 50, 720), (750, 0, 50, 720)]
 
@@ -95,7 +106,7 @@ class Juego:
 
             if teclas[pygame.K_m] and not self.tecla_m_presionada:
                 self.imprimir_matriz()
-                print(f"Posición de la bola: ({int(bola.x)}, {int(bola.y)})")
+                print(f"Posición de la bola: ({int(bola.x/20)}, {int(bola.y/20)})")
                 self.tecla_m_presionada = True
             elif not teclas[pygame.K_m]:
                 self.tecla_m_presionada = False
@@ -109,6 +120,12 @@ class Juego:
                 pygame.draw.rect(self.ventana, (0, 0, 0), objeto)
 
             bola.dibujar()
+
+            for fantasma in fantasmas:
+                fantasma.mover_continuamente()
+
+            for fantasma in fantasmas:
+                pygame.draw.polygon(self.ventana, fantasma.color, [(fantasma.x, fantasma.y - 20), (fantasma.x - 20, fantasma.y + 20), (fantasma.x + 20, fantasma.y + 20)])
 
             pygame.display.update()
 
