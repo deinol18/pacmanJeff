@@ -2,21 +2,18 @@ import threading
 
 import pygame
 import random
-import math
 import time
-
-
 
 ANCHO_VENTANA = 800
 ALTO_VENTANA = 720
 
 objetos_negros = [(0, 0, 800, 50), (0, 670, 800, 50), (0, 0, 50, 720), (750, 0, 50, 720)]
 
-
-
 puntos = 0
 
 nivel_actual = 1
+
+cantF = 0
 
 bola = None
 
@@ -37,6 +34,7 @@ thread = threading.Thread(target=incrementar_tiempo)
 pygame.init()
 matriz = [[0] * 40 for i in range(36)]
 
+
 class Bola:
     def __init__(self, ventana, x, y, radio, velocidad):
         self.ventana = ventana
@@ -48,16 +46,28 @@ class Bola:
         self.comiendo = False
 
     def subir_nivel(self):
-        global fantasmas, nivel_actual, fantasmas_iniciales
+        global fantasmas, nivel_actual, fantasmas_iniciales, pastillas, pastillas_iniciales, frutas, fantasmas_iniciales
         if len(fantasmas) == 0:
             nivel_actual += 1
             fantasmas = fantasmas_iniciales
-            for i in range(nivel_actual*2):
+            pastillas = pastillas_iniciales
+            for i in range(nivel_actual * 2):
                 fantasmas.append(
-                    Fantasma(x=random.randint(110,245), y=random.randint(110,245), velocidad=0.1*nivel_actual, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(255, 20, 147)),)
+                    Fantasma(x=random.randint(110, 245), y=random.randint(110, 245), velocidad=0.1 * nivel_actual,
+                             ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(random.randint(0, 255),
+                                                                                            random.randint(0, 255),
+                                                                                   random.randint(0, 255))), )
+            for i in range(nivel_actual+1):
+                pastillas.append(
+                    Pastilla(x=random.randint(100, 750), y=random.randint(100, 610), radio=8, )
+                )
+
+                frutas.append(
+                    Fruta(x=random.randint(100, 750), y=random.randint(100, 600), radio=12, )
+                )
 
     def mover(self, teclas, objetos_negros):
-        global pastillas, fantasmas, puntos, alimentos, nivel_actual
+        global pastillas, fantasmas, puntos, alimentos, nivel_actual, frutas, cantF
         x_siguiente = self.x
         y_siguiente = self.y
 
@@ -76,7 +86,7 @@ class Bola:
 
         fantasmas_muertos = []
 
-        for i , fantasma in enumerate(fantasmas):
+        for i, fantasma in enumerate(fantasmas):
             if not bola.comiendo:
                 if self.colisiona_con_objeto(x_siguiente, y_siguiente, (fantasma.x, fantasma.y, 10, 10,)):
                     self.gameover = True
@@ -84,11 +94,13 @@ class Bola:
             else:
                 if self.colisiona_con_objeto(x_siguiente, y_siguiente, (fantasma.x, fantasma.y, 10, 10,)):
                     fantasmas_muertos.append(i)
+                    cantF += 1
+                    print(cantF)
                     puntos += 10
 
         fantasmas_vivos = []
 
-        for i , fantasma in enumerate(fantasmas):
+        for i, fantasma in enumerate(fantasmas):
             if not i in fantasmas_muertos:
                 fantasmas_vivos.append(fantasma)
 
@@ -96,14 +108,14 @@ class Bola:
 
         pastillas_aborrar = []
 
-        for i , pastilla in enumerate(pastillas):
+        for i, pastilla in enumerate(pastillas):
             if self.colisiona_con_objeto(x_siguiente, y_siguiente, (pastilla.x, pastilla.y, 20, 20,)):
-                self.comiendo = True
                 pastillas_aborrar.append(i)
+                self.comiendo = True
 
         pastillas_sobro = []
 
-        for i , pastilla in enumerate(pastillas):
+        for i, pastilla in enumerate(pastillas):
             if not i in pastillas_aborrar:
                 pastillas_sobro.append(pastilla)
 
@@ -113,36 +125,52 @@ class Bola:
 
         ali_aborrar = []
 
-        for i , alimento in enumerate(alimentos):
+        for i, alimento in enumerate(alimentos):
             if self.colisiona_con_objeto(x_siguiente, y_siguiente, (alimento[0], alimento[1], 7, 7,)):
                 puntos += 1
                 ali_aborrar.append(i)
 
         alimentos_sobro = []
 
-        for i , alimento in enumerate(alimentos):
+        for i, alimento in enumerate(alimentos):
             if not i in ali_aborrar:
                 alimentos_sobro.append(alimento)
 
         alimentos = alimentos_sobro
 
+        ##############################################
 
+        frutas_aborrar = []
+
+        for i, fruta in enumerate(frutas):
+            if self.colisiona_con_objeto(x_siguiente, y_siguiente, (fruta.x, fruta.y, 20, 20,)):
+                puntos += 20
+                frutas_aborrar.append(i)
+
+        frutas_sobro = []
+
+        for i, fruta in enumerate(frutas):
+            if not i in frutas_aborrar:
+                frutas_sobro.append(fruta)
+
+        frutas = frutas_sobro
 
         self.x = x_siguiente
         self.y = y_siguiente
         self.subir_nivel()
 
-#########################################################################
+    #########################################################################
 
     def colisiona_con_objeto(self, x, y, objeto):
         return (
-            x + self.radio > objeto[0] and
-            x - self.radio < objeto[0] + objeto[2] and
-            y + self.radio > objeto[1] and
-            y - self.radio < objeto[1] + objeto[3])
+                x + self.radio > objeto[0] and
+                x - self.radio < objeto[0] + objeto[2] and
+                y + self.radio > objeto[1] and
+                y - self.radio < objeto[1] + objeto[3])
 
     def dibujar(self):
         pygame.draw.circle(self.ventana, (255, 255, 0), (int(self.x), int(self.y)), self.radio)
+
 
 class Fantasma:
     def __init__(self, x, y, velocidad, ANCHO_VENTANA, ALTO_VENTANA, color):
@@ -152,13 +180,12 @@ class Fantasma:
         self.ANCHO_VENTANA, self.ALTO_VENTANA = ANCHO_VENTANA, ALTO_VENTANA
         self.color = color
 
-
     def colisiona_con_objeto(self, x, y, objeto):
         return (
-            x + 20 > objeto[0] and
-            x - 20 < objeto[0] + objeto[2] and
-            y + 20 > objeto[1] and
-            y - 20 < objeto[1] + objeto[3])
+                x + 20 > objeto[0] and
+                x - 20 < objeto[0] + objeto[2] and
+                y + 20 > objeto[1] and
+                y - 20 < objeto[1] + objeto[3])
 
     def mover_continuamente(self):
 
@@ -168,7 +195,7 @@ class Fantasma:
             if self.colisiona_con_objeto(x_siguiente, y_siguiente, objeto):
                 self.direccion_x, self.direccion_y = random.choice([-1, 1]), random.choice([-1, 1])
                 return
-            
+
         self.x = x_siguiente
         self.y = y_siguiente
 
@@ -177,16 +204,23 @@ class Fantasma:
         if self.y < 0 or self.y > self.ALTO_VENTANA:
             self.direccion_y = -self.direccion_y
 
+
 fantasmas = [
-    Fantasma(x=100, y=100, velocidad=0.1, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(255, 20, 147)),    # Rosa
-    Fantasma(x=200, y=200, velocidad=0.1, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(255, 69, 0)),      # Naranja
-    Fantasma(x=300, y=300, velocidad=0.1, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(0, 255, 255)),     # Cian
-    Fantasma(x=400, y=400, velocidad=0.2, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(255, 0, 0))]       # Rojo
+    Fantasma(x=100, y=100, velocidad=0.1, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(255, 20, 147)),
+    # Rosa
+    Fantasma(x=200, y=200, velocidad=0.1, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(255, 69, 0)),
+    # Naranja
+    Fantasma(x=300, y=300, velocidad=0.1, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(0, 255, 255)),
+    # Cian
+    Fantasma(x=400, y=400, velocidad=0.2, ANCHO_VENTANA=ANCHO_VENTANA, ALTO_VENTANA=ALTO_VENTANA, color=(255, 0, 0))]
+    # Rojo
+
 
 fantasmas_iniciales = fantasmas
 
+
 class Item:
-    
+
     def __init__(self, x, y, radio):
         self.x = x
         self.y = y
@@ -196,26 +230,33 @@ class Item:
 class Fruta(Item):
 
     def __init__(self, x, y, radio):
-        Item.__init__(self,x,y, radio)
+        Item.__init__(self, x, y, radio)
+
 
 class Alimento(Item):
 
     def __init__(self, x, y, radio):
-        Item.__init__(self,x,y, radio)
+        Item.__init__(self, x, y, radio)
+
 
 class Pastilla(Item):
 
     def __init__(self, x, y, radio):
-        Item.__init__(self,x,y, radio)
+        Item.__init__(self, x, y, radio)
+
 
 def generar_alimentos(cantidad):
-    return [(random.randint(30, 600), random.randint(30, 600),) for _ in range(cantidad)]
+    return [(random.randint(30, 700), random.randint(30, 700),) for _ in range(cantidad)]
 
-alimentos = generar_alimentos(15)
 
-pastillas = [Pastilla(x=400, y=300, radio=10), Pastilla(300, 600, radio=10), Pastilla(80, 543, radio=10)]
+alimentos = generar_alimentos(150)
 
-frutas = [Pastilla(x=450, y=360, radio=15), Pastilla(340, 300, radio=10), Pastilla(70, 383, radio=10)]
+pastillas = [Pastilla(80, 543, radio=8), Pastilla(x=600, y=100, radio=8)]
+pastillas_iniciales = pastillas
+
+frutas = [Pastilla(x=450, y=360, radio=12), Pastilla(340, 300, radio=12), Pastilla(70, 383, radio=12)]
+frutas_iniciales = frutas
+
 
 class Juego:
     def __init__(self, ancho, alto):
@@ -239,13 +280,11 @@ class Juego:
                 if fila < 3 or fila > 32 or columna < 3 or columna > 36:
                     matriz[fila][columna] = 0
                 else:
-                    matriz[fila][columna] = 1
-
+                    matriz[fila][columna] = " "
 
         x_matriz = (int(bola.y) // 20)
         y_matriz = (int(bola.x) // 20)
         matriz[x_matriz][y_matriz] = 8
-        
 
         for ghost in fantasmas:
             x_matriz = (int(ghost.y) // 20)
@@ -268,9 +307,8 @@ class Juego:
             y_matriz = int(bloque[0] // 20)
             matriz[x_matriz][y_matriz] = 0
 
-
     def ejecutar(self):
-        
+
         global objetos_negros, bola, pastillas, frutas
 
         bola = Bola(self.ventana, 20, self.alto - 40, 20, 1)
@@ -290,12 +328,11 @@ class Juego:
             if teclas[pygame.K_m] and not self.tecla_m_presionada:
                 if not pausa:
                     self.imprimir_matriz()
-                print(f"Posición de la bola: ({int(bola.x/20)}, {int(bola.y/20)})")
+                print(f"Posición de la bola: ({int(bola.x / 20)}, {int(bola.y / 20)})")
                 self.tecla_m_presionada = True
                 pausa = not pausa
             elif not teclas[pygame.K_m]:
                 self.tecla_m_presionada = False
-            
 
             if not pausa:
                 if not bola.gameover:
@@ -308,22 +345,22 @@ class Juego:
                     self.ventana.fill((0, 0, 128))
 
                     for alimento in alimentos:
-                        pygame.draw.circle(self.ventana,(255,255,255), alimento, 2)
+                        pygame.draw.circle(self.ventana, (255, 255, 255), alimento, 2)
 
                     # Dibujar objetos negros
                     for objeto in objetos_negros:
                         pygame.draw.rect(self.ventana, (0, 0, 0), objeto)
 
                     font = pygame.font.SysFont(None, 48)
-                    textimage = font.render(f"Puntos: {puntos}", True, (255, 0, 0,))
+                    textimage = font.render(f"Puntos: {puntos}", True, (255, 255, 255,))
                     self.ventana.blit(textimage, (50, 10,))
 
                     font = pygame.font.SysFont(None, 48)
-                    textimage = font.render(f"Nivel: {nivel_actual}", True, (255, 0, 0,))
+                    textimage = font.render(f"Nivel: {nivel_actual}", True, (255, 255, 255,))
                     self.ventana.blit(textimage, (250, 10,))
 
                     font = pygame.font.SysFont(None, 48)
-                    textimage = font.render(f"Tiempo: {segundos}", True, (255, 0, 0,))
+                    textimage = font.render(f"Tiempo: {segundos}", True, (255, 255, 255,))
                     self.ventana.blit(textimage, (400, 10,))
 
                     bola.dibujar()
@@ -332,19 +369,21 @@ class Juego:
                         fantasma.mover_continuamente()
 
                     for fantasma in fantasmas:
-                        pygame.draw.polygon(self.ventana, fantasma.color, [(fantasma.x, fantasma.y - 20), (fantasma.x - 20, fantasma.y + 20), (fantasma.x + 20, fantasma.y + 20)])
+                        pygame.draw.polygon(self.ventana, fantasma.color,
+                                            [(fantasma.x, fantasma.y - 20), (fantasma.x - 20, fantasma.y + 20),
+                                             (fantasma.x + 20, fantasma.y + 20)])
 
                     for pastilla in pastillas:
-                        pygame.draw.circle(self.ventana, (255, 255, 255), (int(pastilla.x), int(pastilla.y)), pastilla.radio)
+                        pygame.draw.circle(self.ventana, (255, 255, 255), (int(pastilla.x), int(pastilla.y)),
+                                           pastilla.radio)
 
                     for fruta in frutas:
-                        pygame.draw.circle(self.ventana, (20, 123, 200), (int(fruta.x), int(fruta.y)), fruta.radio)
+                        pygame.draw.circle(self.ventana, (172, 0, 0), (int(fruta.x), int(fruta.y)), fruta.radio)
 
                     self.act_mat()
 
             pygame.display.update()
 
-            
 
 if __name__ == "__main__":
     juego = Juego(800, 720)
