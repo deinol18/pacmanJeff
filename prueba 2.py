@@ -49,6 +49,7 @@ class Bola:
         global fantasmas, nivel_actual, fantasmas_iniciales, pastillas, pastillas_iniciales, frutas, fantasmas_iniciales
         if len(fantasmas) == 0:
             nivel_actual += 1
+            self.comiendo = False
             fantasmas = fantasmas_iniciales
             pastillas = pastillas_iniciales
             for i in range(nivel_actual * 2):
