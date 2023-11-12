@@ -1,7 +1,11 @@
 import threading
+
 import pygame
 import random
+import math
 import time
+
+from JsonHndlr import jsonhandler
 
 ANCHO_VENTANA = 800
 ALTO_VENTANA = 720
@@ -17,6 +21,7 @@ cantF = 0
 bola = None
 
 segundos = 0
+jsonhndlr=jsonhandler()
 
 #-------------------------------- Contador del tiempo   -----------------------------------
 def incrementar_tiempo():
@@ -337,6 +342,9 @@ class Juego:    #   Clases con los métodos del juego
                     bola.mover(teclas, objetos_negros)
 
                 if bola.gameover:
+                    global puntaje
+                    puntaje=puntos
+                    break;
                     pausa = True
                 else:
 
